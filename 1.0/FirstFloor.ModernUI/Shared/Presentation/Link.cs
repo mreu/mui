@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
+    using System;
+
     /// <summary>
     /// Represents a displayable link.
     /// </summary>
     public class Link
         : Displayable
     {
+        /// <summary>
+        /// The source uri.
+        /// </summary>
         private Uri source;
 
         /// <summary>
@@ -20,14 +19,24 @@ namespace FirstFloor.ModernUI.Presentation
         /// <value>The source.</value>
         public Uri Source
         {
-            get { return this.source; }
+            get
+            {
+                return source;
+            }
+
             set
             {
-                if (this.source != value) {
-                    this.source = value;
+                if (source != value)
+                {
+                    source = value;
                     OnPropertyChanged("Source");
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets an arbitrary object value that can be used to store custom information about this element.
+        /// </summary>
+        public object Tag { get; set; }
     }
 }

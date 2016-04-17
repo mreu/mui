@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
     /// <summary>
     /// Represents a named group of links.
@@ -12,9 +6,15 @@ namespace FirstFloor.ModernUI.Presentation
     public class LinkGroup
         : Displayable
     {
+        /// <summary>
+        /// The group key.
+        /// </summary>
         private string groupKey;
+
+        /// <summary>
+        /// The selected link.
+        /// </summary>
         private Link selectedLink;
-        private LinkCollection links = new LinkCollection();
 
         /// <summary>
         /// Gets or sets the key of the group.
@@ -25,11 +25,16 @@ namespace FirstFloor.ModernUI.Presentation
         /// </remarks>
         public string GroupKey
         {
-            get { return this.groupKey; }
+            get
+            {
+                return groupKey;
+            }
+
             set
             {
-                if (this.groupKey != value) {
-                    this.groupKey = value;
+                if (groupKey != value)
+                {
+                    groupKey = value;
                     OnPropertyChanged("GroupKey");
                 }
             }
@@ -41,11 +46,16 @@ namespace FirstFloor.ModernUI.Presentation
         /// <value>The selected link.</value>
         internal Link SelectedLink
         {
-            get { return this.selectedLink; }
+            get
+            {
+                return selectedLink;
+            }
+
             set
             {
-                if (this.selectedLink != value) {
-                    this.selectedLink = value;
+                if (selectedLink != value)
+                {
+                    selectedLink = value;
                     OnPropertyChanged("SelectedLink");
                 }
             }
@@ -55,9 +65,11 @@ namespace FirstFloor.ModernUI.Presentation
         /// Gets the links.
         /// </summary>
         /// <value>The links.</value>
-        public LinkCollection Links
-        {
-            get { return this.links; }
-        }
+        public LinkCollection Links { get; } = new LinkCollection();
+
+        /// <summary>
+        /// Gets or sets an arbitrary object value that can be used to store custom information about this element.
+        /// </summary>
+        public object Tag { get; set; }
     }
 }
