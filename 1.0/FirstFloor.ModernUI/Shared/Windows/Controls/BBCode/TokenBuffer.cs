@@ -1,31 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FirstFloor.ModernUI.Windows.Controls.BBCode
+﻿namespace FirstFloor.ModernUI.Windows.Controls.BBCode
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Represents a token buffer.
     /// </summary>
     internal class TokenBuffer
     {
-        private List<Token> tokens = new List<Token>();
-        private int position;
-        //private int mark;
+        /// <summary>
+        /// The tokens (readonly). Value: new List&lt;Token&gt;().
+        /// </summary>
+        private readonly List<Token> tokens = new List<Token>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:TokenBuffer"/> class.
+        /// The position.
+        /// </summary>
+        private int position;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TokenBuffer"/> class.
         /// </summary>
         /// <param name="lexer">The lexer.</param>
         public TokenBuffer(Lexer lexer)
         {
-            if (lexer == null) {
-                throw new ArgumentNullException("lexer");
+            if (lexer == null)
+            {
+                throw new ArgumentNullException(nameof(lexer));
             }
 
             Token token;
-            do {
+            do
+            {
                 token = lexer.NextToken();
-                this.tokens.Add(token);
+                tokens.Add(token);
             }
             while (token.TokenType != Lexer.TokenEnd);
         }
@@ -34,48 +42,24 @@ namespace FirstFloor.ModernUI.Windows.Controls.BBCode
         /// Performs a look-ahead.
         /// </summary>
         /// <param name="count">The number of tokens to look ahead.</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="Token"/>.</returns>
         public Token LA(int count)
         {
-            int index = this.position + count - 1;
-            if (index < this.tokens.Count) {
-                return this.tokens[index];
+            var index = position + count - 1;
+            if (index < tokens.Count)
+            {
+                return tokens[index];
             }
 
             return Token.End;
         }
-
-        ///// <summary>
-        ///// Marks the current position.
-        ///// </summary>
-        //public void Mark()
-        //{
-        //    this.mark = this.position;
-        //}
-
-        ///// <summary>
-        ///// Gets the mark.
-        ///// </summary>
-        ///// <returns></returns>
-        //public Token[] GetMark()
-        //{
-        //    if (this.mark < this.position) {
-        //        Token[] result = new Token[this.position - this.mark];
-        //        for (int i = this.mark; i < this.position; i++) {
-        //            result[i - this.mark] = this.tokens[i];
-        //        }
-
-        //        return result;
-        //    }
-        //    return new Token[0];
-        //}
 
         /// <summary>
         /// Consumes the next token.
         /// </summary>
         public void Consume()
         {
-            this.position++;
+            position++;
         }
     }
 }

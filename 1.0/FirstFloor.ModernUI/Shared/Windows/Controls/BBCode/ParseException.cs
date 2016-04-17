@@ -1,8 +1,7 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace FirstFloor.ModernUI.Windows.Controls.BBCode
+﻿namespace FirstFloor.ModernUI.Windows.Controls.BBCode
 {
+    using System;
+
     /// <summary>
     /// The exception for parse errors.
     /// </summary>

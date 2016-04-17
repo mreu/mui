@@ -1,14 +1,12 @@
-﻿using FirstFloor.ModernUI.Presentation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls;
+
+    using FirstFloor.ModernUI.Presentation;
+
     /// <summary>
     /// Represents a control that contains multiple pages that share the same space on screen.
     /// </summary>
@@ -41,48 +39,68 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public event EventHandler<SourceEventArgs> SelectedSourceChanged;
 
+        /// <summary>
+        /// The link list.
+        /// </summary>
         private ListBox linkList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ModernTab"/> control.
+        /// Initializes a new instance of the <see cref="ModernTab"/> class.
         /// </summary>
         public ModernTab()
         {
-            this.DefaultStyleKey = typeof(ModernTab);
+            DefaultStyleKey = typeof(ModernTab);
 
             // create a default links collection
             SetCurrentValue(LinksProperty, new LinkCollection());
         }
 
+        /// <summary>
+        /// Raises the links changed event.
+        /// </summary>
+        /// <param name="o">The o.</param>
+        /// <param name="e">The dependency property changed event arguments.</param>
         private static void OnLinksChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
             ((ModernTab)o).UpdateSelection();
         }
 
+        /// <summary>
+        /// Raises the selected source changed event.
+        /// </summary>
+        /// <param name="o">The o.</param>
+        /// <param name="e">The dependency property changed event arguments.</param>
         private static void OnSelectedSourceChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
             ((ModernTab)o).OnSelectedSourceChanged((Uri)e.OldValue, (Uri)e.NewValue);
         }
 
+        /// <summary>
+        /// Raises the selected source changed event.
+        /// </summary>
+        /// <param name="oldValue">The oldValue.</param>
+        /// <param name="newValue">The newValue.</param>
         private void OnSelectedSourceChanged(Uri oldValue, Uri newValue)
         {
             UpdateSelection();
 
             // raise SelectedSourceChanged event
-            var handler = this.SelectedSourceChanged;
-            if (handler != null) {
-                handler(this, new SourceEventArgs(newValue));
-            }
+            var handler = SelectedSourceChanged;
+            handler?.Invoke(this, new SourceEventArgs(newValue));
         }
 
+        /// <summary>
+        /// Update selection.
+        /// </summary>
         private void UpdateSelection()
         {
-            if (this.linkList == null || this.Links == null) {
+            if (linkList == null || Links == null)
+            {
                 return;
             }
 
             // sync list selection with current source
-            this.linkList.SelectedItem = this.Links.FirstOrDefault(l => l.Source == this.SelectedSource);
+            linkList.SelectedItem = Links.FirstOrDefault(l => l.Source == SelectedSource);
         }
 
         /// <summary>
@@ -92,22 +110,30 @@ namespace FirstFloor.ModernUI.Windows.Controls
         {
             base.OnApplyTemplate();
 
-            if (this.linkList != null) {
-                this.linkList.SelectionChanged -= OnLinkListSelectionChanged;
+            if (linkList != null)
+            {
+                linkList.SelectionChanged -= OnLinkListSelectionChanged;
             }
 
-            this.linkList = GetTemplateChild("LinkList") as ListBox;
-            if (this.linkList != null) {
-                this.linkList.SelectionChanged += OnLinkListSelectionChanged;
+            linkList = GetTemplateChild("LinkList") as ListBox;
+            if (linkList != null)
+            {
+                linkList.SelectionChanged += OnLinkListSelectionChanged;
             }
 
             UpdateSelection();
         }
 
+        /// <summary>
+        /// Raises the link list selection changed event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The selection changed event arguments.</param>
         private void OnLinkListSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var link = this.linkList.SelectedItem as Link;
-            if (link != null && link.Source != this.SelectedSource) {
+            var link = linkList.SelectedItem as Link;
+            if (link != null && link.Source != SelectedSource)
+            {
                 SetCurrentValue(SelectedSourceProperty, link.Source);
             }
         }

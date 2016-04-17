@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System.Windows;
+
     /// <summary>
     /// A DataGrid text column using default Modern UI element styles.
     /// </summary>
@@ -18,8 +13,8 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public DataGridTextColumn()
         {
-            this.ElementStyle = Application.Current.Resources["DataGridTextStyle"] as Style;
-            this.EditingElementStyle = Application.Current.Resources["DataGridEditingTextStyle"] as Style;
+            ElementStyle = Application.Current.Resources["DataGridTextStyle"] as Style;
+            EditingElementStyle = Application.Current.Resources["DataGridEditingTextStyle"] as Style;
         }
     }
 }

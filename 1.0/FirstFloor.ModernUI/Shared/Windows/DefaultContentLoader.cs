@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows
+﻿namespace FirstFloor.ModernUI.Windows
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Windows;
+
     /// <summary>
     /// Loads XAML files using Application.LoadComponent.
     /// </summary>
@@ -22,10 +19,11 @@ namespace FirstFloor.ModernUI.Windows
         /// <returns>The loaded content.</returns>
         public Task<object> LoadContentAsync(Uri uri, CancellationToken cancellationToken)
         {
-            if (!Application.Current.Dispatcher.CheckAccess()) {
-               throw new InvalidOperationException(Resources.UIThreadRequired);
+            if (!Application.Current.Dispatcher.CheckAccess())
+            {
+                throw new InvalidOperationException(Resources.UIThreadRequired);
             }
-            
+
             // scheduler ensures LoadContent is executed on the current UI thread
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
             return Task.Factory.StartNew(() => LoadContent(uri), cancellationToken, TaskCreationOptions.None, scheduler);
@@ -39,9 +37,11 @@ namespace FirstFloor.ModernUI.Windows
         protected virtual object LoadContent(Uri uri)
         {
             // don't do anything in design mode
-            if (ModernUIHelper.IsInDesignMode) {
+            if (ModernUIHelper.IsInDesignMode)
+            {
                 return null;
             }
+
             return Application.LoadComponent(uri);
         }
     }

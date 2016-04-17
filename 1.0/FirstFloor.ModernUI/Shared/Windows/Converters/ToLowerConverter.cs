@@ -1,9 +1,8 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Windows.Data;
-
-namespace FirstFloor.ModernUI.Windows.Converters
+﻿namespace FirstFloor.ModernUI.Windows.Converters
 {
+    using System;
+    using System.Windows.Data;
+
     /// <summary>
     /// Converts string values to lower case.
     /// </summary>
@@ -20,16 +19,11 @@ namespace FirstFloor.ModernUI.Windows.Converters
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
-        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value != null) {
-                var strValue = value.ToString();
+            var strValue = value?.ToString();
 
-                
-                return strValue.ToLowerInvariant();
-            }
-            return null;
+            return strValue?.ToLowerInvariant();
         }
 
         /// <summary>

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Globalization;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Converters
+﻿namespace FirstFloor.ModernUI.Windows.Converters
 {
+    using System;
+    using System.Globalization;
+    using System.Windows;
+    using System.Windows.Data;
+
     /// <summary>
     /// Converts a null or empty string value to Visibility.Visible and any other value to Visibility.Collapsed
     /// </summary>
@@ -27,17 +24,19 @@ namespace FirstFloor.ModernUI.Windows.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var flag = value == null;
-            if (value is string) {
+            if (value is string)
+            {
                 flag = string.IsNullOrEmpty((string)value);
             }
+
             var inverse = (parameter as string) == "inverse";
 
-            if (inverse) {
-                return (flag ? Visibility.Collapsed : Visibility.Visible);
+            if (inverse)
+            {
+                return flag ? Visibility.Collapsed : Visibility.Visible;
             }
-            else {
-                return (flag ? Visibility.Visible : Visibility.Collapsed);
-            }
+
+            return flag ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>

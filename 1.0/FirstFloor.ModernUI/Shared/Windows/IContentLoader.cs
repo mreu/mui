@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Windows
+﻿namespace FirstFloor.ModernUI.Windows
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// The contract for loading content.
     /// </summary>

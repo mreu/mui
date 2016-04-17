@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Windows.Navigation
+﻿namespace FirstFloor.ModernUI.Windows.Navigation
 {
+    using System;
+
     /// <summary>
     /// Provides data for fragment navigation events.
     /// </summary>

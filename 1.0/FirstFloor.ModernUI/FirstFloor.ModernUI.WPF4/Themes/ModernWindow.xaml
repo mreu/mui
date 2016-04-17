@@ -51,7 +51,7 @@
                                     <ContentControl Grid.RowSpan="5" Content="{TemplateBinding BackgroundContent}" />
 
                                     <!-- title bar -->
-                                    <Grid>
+                                    <Grid Grid.Row="0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />

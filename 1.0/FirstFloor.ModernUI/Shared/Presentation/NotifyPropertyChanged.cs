@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
+    using System.ComponentModel;
+
     /// <summary>
     /// The base implementation of the INotifyPropertyChanged contract.
     /// </summary>
@@ -25,10 +19,8 @@ namespace FirstFloor.ModernUI.Presentation
         /// <param name="propertyName">Name of the property.</param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            var handler = this.PropertyChanged;
-            if (handler != null) {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            var handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
 #if !NET4

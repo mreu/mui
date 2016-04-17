@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
     /// <summary>
     /// Provides a base implementation for objects that are displayed in the UI.
@@ -12,6 +6,9 @@ namespace FirstFloor.ModernUI.Presentation
     public abstract class Displayable
         : NotifyPropertyChanged
     {
+        /// <summary>
+        /// The display name.
+        /// </summary>
         private string displayName;
 
         /// <summary>
@@ -20,11 +17,16 @@ namespace FirstFloor.ModernUI.Presentation
         /// <value>The display name.</value>
         public string DisplayName
         {
-            get { return this.displayName; }
+            get
+            {
+                return displayName;
+            }
+
             set
             {
-                if (this.displayName != value) {
-                    this.displayName = value;
+                if (displayName != value)
+                {
+                    displayName = value;
                     OnPropertyChanged("DisplayName");
                 }
             }

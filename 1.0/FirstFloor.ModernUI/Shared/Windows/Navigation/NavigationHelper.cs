@@ -1,15 +1,12 @@
-﻿using FirstFloor.ModernUI.Windows.Controls;
-using FirstFloor.ModernUI.Windows.Media;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Navigation
+﻿namespace FirstFloor.ModernUI.Windows.Navigation
 {
+    using System;
+    using System.Linq;
+    using System.Windows;
+
+    using FirstFloor.ModernUI.Windows.Controls;
+    using FirstFloor.ModernUI.Windows.Media;
+
     /// <summary>
     /// Provides helper function for navigation.
     /// </summary>
@@ -36,22 +33,28 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// <returns>The frame or null if the frame could not be found.</returns>
         public static ModernFrame FindFrame(string name, FrameworkElement context)
         {
-            if (context == null) {
-                throw new ArgumentNullException("context");
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
             }
 
             // collect all ancestor frames
             var frames = context.AncestorsAndSelf().OfType<ModernFrame>().ToArray();
 
-            if (name == null || name == FrameSelf) {
+            if (name == null || name == FrameSelf)
+            {
                 // find first ancestor frame
                 return frames.FirstOrDefault();
             }
-            if (name == FrameParent) {
+
+            if (name == FrameParent)
+            {
                 // find parent frame
                 return frames.Skip(1).FirstOrDefault();
             }
-            if (name == FrameTop) {
+
+            if (name == FrameTop)
+            {
                 // find top-most frame
                 return frames.LastOrDefault();
             }
@@ -59,16 +62,20 @@ namespace FirstFloor.ModernUI.Windows.Navigation
             // find ancestor frame having a name matching the target
             var frame = frames.FirstOrDefault(f => f.Name == name);
 
-            if (frame == null) {
+            if (frame == null)
+            {
                 // find frame in context scope
                 frame = context.FindName(name) as ModernFrame;
 
-                if (frame == null) {
+                if (frame == null)
+                {
                     // find frame in scope of ancestor frame content
                     var parent = frames.FirstOrDefault();
-                    if (parent != null && parent.Content != null) {
+                    if (parent != null && parent.Content != null)
+                    {
                         var content = parent.Content as FrameworkElement;
-                        if (content != null) {
+                        if (content != null)
+                        {
                             frame = content.FindName(name) as ModernFrame;
                         }
                     }
@@ -99,13 +106,15 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         {
             fragment = null;
 
-            if (uri != null) {
+            if (uri != null)
+            {
                 var value = uri.OriginalString;
 
                 var i = value.IndexOf('#');
-                if (i != -1) {
+                if (i != -1)
+                {
                     fragment = value.Substring(i + 1);
-                    //uri = new Uri(value.Substring(0, i), uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
+                    //// uri = new Uri(value.Substring(0, i), uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
                 }
             }
 
@@ -115,17 +124,20 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// <summary>
         /// Tries to cast specified value to a uri. Either a uri or string input is accepted.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">The value.</param>
+        /// <returns>The <see cref="Uri"/>.</returns>
         public static Uri ToUri(object value)
         {
             var uri = value as Uri;
-            if (uri == null) {
+            if (uri == null)
+            {
                 var uriString = value as string;
-                if (uriString == null || !Uri.TryCreate(uriString, UriKind.RelativeOrAbsolute, out uri)) {
+                if (uriString == null || !Uri.TryCreate(uriString, UriKind.RelativeOrAbsolute, out uri))
+                {
                     return null; // no valid uri found
                 }
             }
+
             return uri;
         }
 
@@ -136,18 +148,19 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// <param name="uri">The URI.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="targetName">Name of the target.</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool TryParseUriWithParameters(object value, out Uri uri, out string parameter, out string targetName)
         {
             uri = value as Uri;
             parameter = null;
             targetName = null;
 
-            if (uri == null) {
+            if (uri == null)
+            {
                 var valueString = value as string;
                 return TryParseUriWithParameters(valueString, out uri, out parameter, out targetName);
             }
-            
+
             return true;
         }
 
@@ -158,26 +171,29 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// <param name="uri">The URI.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="targetName">Name of the target.</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="bool"/>.</returns>
         public static bool TryParseUriWithParameters(string value, out Uri uri, out string parameter, out string targetName)
         {
             uri = null;
             parameter = null;
             targetName = null;
 
-            if (value == null) {
+            if (value == null)
+            {
                 return false;
             }
 
             // parse uri value for optional parameter and/or target, eg 'cmd://foo|parameter|target'
-            string uriString = value;
-            var parts = uriString.Split(new char[] { '|' }, 3);
-            if (parts.Length == 3) {
+            var uriString = value;
+            var parts = uriString.Split(new[] { '|' }, 3);
+            if (parts.Length == 3)
+            {
                 uriString = parts[0];
                 parameter = Uri.UnescapeDataString(parts[1]);
                 targetName = Uri.UnescapeDataString(parts[2]);
             }
-            else if (parts.Length == 2) {
+            else if (parts.Length == 2)
+            {
                 uriString = parts[0];
                 parameter = Uri.UnescapeDataString(parts[1]);
             }

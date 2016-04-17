@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System.Windows;
+
     /// <summary>
     /// A DataGrid checkbox column using default Modern UI element styles.
     /// </summary>
@@ -18,7 +13,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public DataGridComboBoxColumn()
         {
-            this.EditingElementStyle = Application.Current.Resources["DataGridEditingComboBoxStyle"] as Style;
+            EditingElementStyle = Application.Current.Resources["DataGridEditingComboBoxStyle"] as Style;
         }
     }
 }

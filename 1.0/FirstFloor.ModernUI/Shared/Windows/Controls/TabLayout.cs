@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
     /// <summary>
     /// Define the available tab layouts.
@@ -15,6 +9,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// Tab layout.
         /// </summary>
         Tab,
+
         /// <summary>
         /// List layout.
         /// </summary>

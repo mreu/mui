@@ -1,23 +1,29 @@
-﻿using FirstFloor.ModernUI.Presentation;
-using FirstFloor.ModernUI.Windows.Controls;
-using FirstFloor.ModernUI.Windows.Media;
-using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-
-namespace FirstFloor.ModernUI.Windows.Navigation
+﻿namespace FirstFloor.ModernUI.Windows.Navigation
 {
+    using System;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Input;
+
+    using FirstFloor.ModernUI.Presentation;
+
     /// <summary>
     /// The default link navigator with support for loading frame content, external link navigation using the default browser and command execution.
     /// </summary>
     public class DefaultLinkNavigator
         : ILinkNavigator
     {
+        /// <summary>
+        /// The commands.
+        /// </summary>
         private CommandDictionary commands = new CommandDictionary();
-        private string[] externalSchemes = new string[] { Uri.UriSchemeHttp, Uri.UriSchemeHttps, Uri.UriSchemeMailto };
+
+        /// <summary>
+        /// The external schemes.
+        /// </summary>
+        private string[] externalSchemes = { Uri.UriSchemeHttp, Uri.UriSchemeHttps, Uri.UriSchemeMailto };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultLinkNavigator"/> class.
@@ -25,19 +31,19 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         public DefaultLinkNavigator()
         {
             // register all ApperanceManager commands
-            this.Commands.Add(new Uri("cmd://accentcolor"), AppearanceManager.Current.AccentColorCommand);
-            this.Commands.Add(new Uri("cmd://darktheme"), AppearanceManager.Current.DarkThemeCommand);
-            this.Commands.Add(new Uri("cmd://largefontsize"), AppearanceManager.Current.LargeFontSizeCommand);
-            this.Commands.Add(new Uri("cmd://lighttheme"), AppearanceManager.Current.LightThemeCommand);
-            this.Commands.Add(new Uri("cmd://settheme"), AppearanceManager.Current.SetThemeCommand);
-            this.Commands.Add(new Uri("cmd://smallfontsize"), AppearanceManager.Current.SmallFontSizeCommand);
+            Commands.Add(new Uri("cmd://accentcolor"), AppearanceManager.Current.AccentColorCommand);
+            Commands.Add(new Uri("cmd://darktheme"), AppearanceManager.Current.DarkThemeCommand);
+            Commands.Add(new Uri("cmd://largefontsize"), AppearanceManager.Current.LargeFontSizeCommand);
+            Commands.Add(new Uri("cmd://lighttheme"), AppearanceManager.Current.LightThemeCommand);
+            Commands.Add(new Uri("cmd://settheme"), AppearanceManager.Current.SetThemeCommand);
+            Commands.Add(new Uri("cmd://smallfontsize"), AppearanceManager.Current.SmallFontSizeCommand);
 
             // register navigation commands
-            this.commands.Add(new Uri("cmd://browseback"), NavigationCommands.BrowseBack);
-            this.commands.Add(new Uri("cmd://refresh"), NavigationCommands.Refresh);
+            commands.Add(new Uri("cmd://browseback"), NavigationCommands.BrowseBack);
+            commands.Add(new Uri("cmd://refresh"), NavigationCommands.Refresh);
 
             // register application commands
-            this.commands.Add(new Uri("cmd://copy"), ApplicationCommands.Copy);
+            commands.Add(new Uri("cmd://copy"), ApplicationCommands.Copy);
         }
 
         /// <summary>
@@ -48,8 +54,8 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// </remarks>
         public string[] ExternalSchemes
         {
-            get { return this.externalSchemes; }
-            set { this.externalSchemes = value; }
+            get { return externalSchemes; }
+            set { externalSchemes = value; }
         }
 
         /// <summary>
@@ -57,8 +63,8 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// </summary>
         public CommandDictionary Commands
         {
-            get { return this.commands; }
-            set { this.commands = value; }
+            get { return commands; }
+            set { commands = value; }
         }
 
         /// <summary>
@@ -69,36 +75,40 @@ namespace FirstFloor.ModernUI.Windows.Navigation
         /// <param name="parameter">An optional command parameter or navigation target.</param>
         public virtual void Navigate(Uri uri, FrameworkElement source = null, string parameter = null)
         {
-            if (uri == null) {
+            if (uri == null)
+            {
                 throw new ArgumentNullException("uri");
             }
 
             // first check if uri refers to a command
             ICommand command;
-            if (this.commands != null && this.commands.TryGetValue(uri, out command)) {
+            if (commands != null && commands.TryGetValue(uri, out command))
+            {
                 // note: not executed within BBCodeBlock context, Hyperlink instance has Command and CommandParameter set
-                if (command.CanExecute(parameter)) {
+                if (command.CanExecute(parameter))
+                {
                     command.Execute(parameter);
                 }
-                else {
-                    // do nothing
-                }
             }
-            else if (uri.IsAbsoluteUri && this.externalSchemes != null && this.externalSchemes.Any(s => uri.Scheme.Equals(s, StringComparison.OrdinalIgnoreCase))) {
+            else if (uri.IsAbsoluteUri && externalSchemes != null && externalSchemes.Any(s => uri.Scheme.Equals(s, StringComparison.OrdinalIgnoreCase)))
+            {
                 // uri is external, load in default browser
                 Process.Start(uri.AbsoluteUri);
-                return;
             }
-            else {
+            else
+            {
                 // perform frame navigation
-                if (source == null) {   // source required
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentUICulture, ModernUI.Resources.NavigationFailedSourceNotSpecified, uri));
+                if (source == null)
+                {
+                    // source required
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentUICulture, Resources.NavigationFailedSourceNotSpecified, uri));
                 }
 
                 // use optional parameter as navigation target to identify target frame (_self, _parent, _top or named target frame)
                 var frame = NavigationHelper.FindFrame(parameter, source);
-                if (frame == null) {
-                    throw new ArgumentException(string.Format(CultureInfo.CurrentUICulture, ModernUI.Resources.NavigationFailedFrameNotFound, uri, parameter));
+                if (frame == null)
+                {
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentUICulture, Resources.NavigationFailedFrameNotFound, uri, parameter));
                 }
 
                 // delegate navigation to the frame

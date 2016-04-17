@@ -1,26 +1,38 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace FirstFloor.ModernUI.Windows.Controls.BBCode
+﻿namespace FirstFloor.ModernUI.Windows.Controls.BBCode
 {
+    using System;
+
     /// <summary>
     /// Represents a character buffer.
     /// </summary>
     internal class CharBuffer
     {
-        private string value;
+        /// <summary>
+        /// The value (readonly).
+        /// </summary>
+        private readonly string value;
+
+        /// <summary>
+        /// The position.
+        /// </summary>
         private int position;
+
+        /// <summary>
+        /// The mark.
+        /// </summary>
         private int mark;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:CharBuffer"/> class.
+        /// Initializes a new instance of the <see cref="CharBuffer"/> class.
         /// </summary>
         /// <param name="value">The value.</param>
         public CharBuffer(string value)
         {
-            if (value == null) {
-                throw new ArgumentNullException("value");
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
             }
+
             this.value = value;
         }
 
@@ -28,12 +40,13 @@ namespace FirstFloor.ModernUI.Windows.Controls.BBCode
         /// Performs a look-ahead.
         /// </summary>
         /// <param name="count">The number of character to look ahead.</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="char"/>.</returns>
         public char LA(int count)
         {
-            int index = this.position + count - 1;
-            if (index < this.value.Length) {
-                return this.value[index];
+            var index = position + count - 1;
+            if (index < value.Length)
+            {
+                return value[index];
             }
 
             return char.MaxValue;
@@ -44,19 +57,20 @@ namespace FirstFloor.ModernUI.Windows.Controls.BBCode
         /// </summary>
         public void Mark()
         {
-            this.mark = this.position;
+            mark = position;
         }
 
         /// <summary>
         /// Gets the mark.
         /// </summary>
-        /// <returns></returns>
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
+        /// <returns>The <see cref="string"/>.</returns>
         public string GetMark()
         {
-            if (this.mark < this.position) {
-                return this.value.Substring(this.mark, this.position - this.mark);
+            if (mark < position)
+            {
+                return value.Substring(mark, position - mark);
             }
+
             return string.Empty;
         }
 
@@ -65,7 +79,7 @@ namespace FirstFloor.ModernUI.Windows.Controls.BBCode
         /// </summary>
         public void Consume()
         {
-            this.position++;
+            position++;
         }
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+
     /// <summary>
     /// Provides data for events related to uri sources.
     /// </summary>
@@ -15,10 +11,10 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceEventArgs"/> class.
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="source">The uri.</param>
         public SourceEventArgs(Uri source)
         {
-            this.Source = source;
+            Source = source;
         }
 
         /// <summary>

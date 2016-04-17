@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
+    using System;
+    using System.Windows.Input;
+
     /// <summary>
     /// The base implementation of a command.
     /// </summary>

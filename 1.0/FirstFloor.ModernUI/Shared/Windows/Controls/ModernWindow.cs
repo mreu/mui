@@ -1,19 +1,16 @@
-﻿using FirstFloor.ModernUI.Presentation;
-using FirstFloor.ModernUI.Windows.Navigation;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+    using System.ComponentModel;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using System.Windows.Media;
+    using System.Windows.Media.Animation;
+
+    using FirstFloor.ModernUI.Presentation;
+    using FirstFloor.ModernUI.Windows.Navigation;
+
     /// <summary>
     /// Represents a Modern UI styled window.
     /// </summary>
@@ -51,8 +48,11 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <summary>
         /// Identifies the LinkNavigator dependency property.
         /// </summary>
-        public static DependencyProperty LinkNavigatorProperty = DependencyProperty.Register("LinkNavigator", typeof(ILinkNavigator), typeof(ModernWindow), new PropertyMetadata(new DefaultLinkNavigator()));
+        private static readonly DependencyProperty LinkNavigatorProperty = DependencyProperty.Register("LinkNavigator", typeof(ILinkNavigator), typeof(ModernWindow), new PropertyMetadata(new DefaultLinkNavigator()));
 
+        /// <summary>
+        /// The background animation.
+        /// </summary>
         private Storyboard backgroundAnimation;
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public ModernWindow()
         {
-            this.DefaultStyleKey = typeof(ModernWindow);
+            DefaultStyleKey = typeof(ModernWindow);
 
             // create empty collections
             SetCurrentValue(MenuLinkGroupsProperty, new LinkGroupCollection());
@@ -68,18 +68,19 @@ namespace FirstFloor.ModernUI.Windows.Controls
 
             // associate window commands with this instance
 #if NET4
-            this.CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.CloseWindowCommand, OnCloseWindow));
-            this.CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.MaximizeWindowCommand, OnMaximizeWindow, OnCanResizeWindow));
-            this.CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
-            this.CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
+            CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.CloseWindowCommand, OnCloseWindow));
+            CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.MaximizeWindowCommand, OnMaximizeWindow, OnCanResizeWindow));
+            CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
+            CommandBindings.Add(new CommandBinding(Microsoft.Windows.Shell.SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
 #else
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MaximizeWindowCommand, OnMaximizeWindow, OnCanResizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
 #endif
+
             // associate navigate link command with this instance
-            this.CommandBindings.Add(new CommandBinding(LinkCommands.NavigateLink, OnNavigateLink, OnCanNavigateLink));
+            CommandBindings.Add(new CommandBinding(LinkCommands.NavigateLink, OnNavigateLink, OnCanNavigateLink));
 
             // listen for theme changes
             AppearanceManager.Current.PropertyChanged += OnAppearanceManagerPropertyChanged;
@@ -88,7 +89,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <summary>
         /// Raises the System.Windows.Window.Closed event.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e">The event arguments.</param>
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
@@ -106,67 +107,102 @@ namespace FirstFloor.ModernUI.Windows.Controls
 
             // retrieve BackgroundAnimation storyboard
             var border = GetTemplateChild("WindowBorder") as Border;
-            if (border != null) {
-                this.backgroundAnimation = border.Resources["BackgroundAnimation"] as Storyboard;
+            if (border != null)
+            {
+                backgroundAnimation = border.Resources["BackgroundAnimation"] as Storyboard;
 
-                if (this.backgroundAnimation != null) {
-                    this.backgroundAnimation.Begin();
-                }
+                backgroundAnimation?.Begin();
             }
         }
 
+        /// <summary>
+        /// Raises the appearance manager property changed event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The property changed event arguments.</param>
         private void OnAppearanceManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             // start background animation if theme has changed
-            if (e.PropertyName == "ThemeSource" && this.backgroundAnimation != null) {
-                this.backgroundAnimation.Begin();
+            if (e.PropertyName == "ThemeSource")
+            {
+                backgroundAnimation?.Begin();
             }
         }
 
+        /// <summary>
+        /// Raises the can navigate link event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The can execute routed event arguments.</param>
         private void OnCanNavigateLink(object sender, CanExecuteRoutedEventArgs e)
         {
             // true by default
             e.CanExecute = true;
 
-            if (this.LinkNavigator != null && this.LinkNavigator.Commands != null) {
+            if (LinkNavigator?.Commands != null)
+            {
                 // in case of command uri, check if ICommand.CanExecute is true
                 Uri uri;
                 string parameter;
                 string targetName;
 
                 // TODO: CanNavigate is invoked a lot, which means a lot of parsing. need improvements??
-                if (NavigationHelper.TryParseUriWithParameters(e.Parameter, out uri, out parameter, out targetName)) {
+                if (NavigationHelper.TryParseUriWithParameters(e.Parameter, out uri, out parameter, out targetName))
+                {
                     ICommand command;
-                    if (this.LinkNavigator.Commands.TryGetValue(uri, out command)) {
+                    if (LinkNavigator.Commands.TryGetValue(uri, out command))
+                    {
                         e.CanExecute = command.CanExecute(parameter);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Raises the navigate link event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The executed routed event arguments.</param>
         private void OnNavigateLink(object sender, ExecutedRoutedEventArgs e)
         {
-            if (this.LinkNavigator != null) {
-                 Uri uri;
+            if (LinkNavigator != null)
+            {
+                Uri uri;
                 string parameter;
                 string targetName;
 
-                if (NavigationHelper.TryParseUriWithParameters(e.Parameter, out uri, out parameter, out targetName)) {
-                    this.LinkNavigator.Navigate(uri, e.Source as FrameworkElement, parameter);
+                if (NavigationHelper.TryParseUriWithParameters(e.Parameter, out uri, out parameter, out targetName))
+                {
+                    LinkNavigator.Navigate(uri, e.Source as FrameworkElement, parameter);
                 }
             }
         }
 
+        /// <summary>
+        /// Raises the can resize window event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The can execute routed event arguments.</param>
         private void OnCanResizeWindow(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.ResizeMode == ResizeMode.CanResize || this.ResizeMode == ResizeMode.CanResizeWithGrip;
+            e.CanExecute = ResizeMode == ResizeMode.CanResize || ResizeMode == ResizeMode.CanResizeWithGrip;
         }
 
+        /// <summary>
+        /// Raises the can minimize window event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The can execute routed event arguments.</param>
         private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.ResizeMode != ResizeMode.NoResize;
+            e.CanExecute = ResizeMode != ResizeMode.NoResize;
         }
 
+        /// <summary>
+        /// Raises the close window event.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="e">The executed routed event arguments.</param>
         private void OnCloseWindow(object target, ExecutedRoutedEventArgs e)
         {
 #if NET4
@@ -176,6 +212,11 @@ namespace FirstFloor.ModernUI.Windows.Controls
 #endif
         }
 
+        /// <summary>
+        /// Raises the maximize window event.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="e">The executed routed event arguments.</param>
         private void OnMaximizeWindow(object target, ExecutedRoutedEventArgs e)
         {
 #if NET4
@@ -185,6 +226,11 @@ namespace FirstFloor.ModernUI.Windows.Controls
 #endif
         }
 
+        /// <summary>
+        /// Raises the minimize window event.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="e">The executed routed event arguments.</param>
         private void OnMinimizeWindow(object target, ExecutedRoutedEventArgs e)
         {
 #if NET4
@@ -194,6 +240,11 @@ namespace FirstFloor.ModernUI.Windows.Controls
 #endif
         }
 
+        /// <summary>
+        /// Raises the restore window event.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="e">The executed routed event arguments.</param>
         private void OnRestoreWindow(object target, ExecutedRoutedEventArgs e)
         {
 #if NET4

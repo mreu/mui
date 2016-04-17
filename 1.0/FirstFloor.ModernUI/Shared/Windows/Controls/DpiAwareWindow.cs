@@ -1,17 +1,15 @@
-﻿using FirstFloor.ModernUI.Win32;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+    using System.Runtime.InteropServices;
+    using System.Windows;
+    using System.Windows.Interop;
+    using System.Windows.Media;
+
+    using FirstFloor.ModernUI.Win32;
+
+    using Microsoft.Win32;
+
     /// <summary>
     /// A window instance that is capable of per-monitor DPI awareness when supported.
     /// </summary>
@@ -23,22 +21,33 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public event EventHandler DpiChanged;
 
+        /// <summary>
+        /// The source.
+        /// </summary>
         private HwndSource source;
+
+        /// <summary>
+        /// The dpi info.
+        /// </summary>
         private DpiInformation dpiInfo;
-        private bool isPerMonitorDpiAware;
+
+        /// <summary>
+        /// The is per monitor dpi aware (readonly).
+        /// </summary>
+        private readonly bool isPerMonitorDpiAware;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DpiAwareWindow"/> class.
         /// </summary>
         public DpiAwareWindow()
         {
-            this.SourceInitialized += OnSourceInitialized;
+            SourceInitialized += OnSourceInitialized;
 
             // WM_DPICHANGED is not send when window is minimized, do listen to global display setting changes
             SystemEvents.DisplaySettingsChanged += OnSystemEventsDisplaySettingsChanged;
 
             // try to set per-monitor dpi awareness, before the window is displayed
-            this.isPerMonitorDpiAware = ModernUIHelper.TrySetPerMonitorDpiAware();
+            isPerMonitorDpiAware = ModernUIHelper.TrySetPerMonitorDpiAware();
         }
 
         /// <summary>
@@ -47,15 +56,12 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <remarks>
         /// DPI information is available after a window handle has been created.
         /// </remarks>
-        public DpiInformation DpiInformation
-        {
-            get { return this.dpiInfo; }
-        }
+        public DpiInformation DpiInformation => dpiInfo;
 
         /// <summary>
         /// Raises the System.Windows.Window.Closed event.
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e">The event arguments.</param>
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
@@ -64,53 +70,76 @@ namespace FirstFloor.ModernUI.Windows.Controls
             SystemEvents.DisplaySettingsChanged -= OnSystemEventsDisplaySettingsChanged;
         }
 
+        /// <summary>
+        /// Raises the system events display settings changed event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
         private void OnSystemEventsDisplaySettingsChanged(object sender, EventArgs e)
         {
-            if (this.source != null && this.WindowState == WindowState.Minimized) {
+            if (source != null && WindowState == WindowState.Minimized)
+            {
                 RefreshMonitorDpi();
             }
         }
 
+        /// <summary>
+        /// Raises the source initialized event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
         private void OnSourceInitialized(object sender, EventArgs e)
         {
-            this.source = (HwndSource)HwndSource.FromVisual(this);
+            source = (HwndSource)PresentationSource.FromVisual(this);
 
             // calculate the DPI used by WPF; this is the same as the system DPI
             var matrix = source.CompositionTarget.TransformToDevice;
 
-            this.dpiInfo = new DpiInformation(96D * matrix.M11, 96D * matrix.M22);
+            dpiInfo = new DpiInformation(96D * matrix.M11, 96D * matrix.M22);
 
-            if (this.isPerMonitorDpiAware) {
-                this.source.AddHook(WndProc);
+            if (isPerMonitorDpiAware)
+            {
+                source.AddHook(WndProc);
 
                 RefreshMonitorDpi();
             }
         }
 
+        /// <summary>
+        /// The wnd proc.
+        /// </summary>
+        /// <param name="hwnd">The hwnd.</param>
+        /// <param name="msg">The msg.</param>
+        /// <param name="wParam">The wParam.</param>
+        /// <param name="lParam">The lParam.</param>
+        /// <param name="handled">The handled.</param>
+        /// <returns>The <see cref="IntPtr"/>.</returns>
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if (msg == NativeMethods.WM_DPICHANGED) {
+            if (msg == NativeMethods.WM_DPICHANGED)
+            {
                 // Marshal the value in the lParam into a Rect.
                 var newDisplayRect = (RECT)Marshal.PtrToStructure(lParam, typeof(RECT));
 
                 // Set the Window's position & size.
-                var matrix = this.source.CompositionTarget.TransformFromDevice;
+                var matrix = source.CompositionTarget.TransformFromDevice;
                 var ul = matrix.Transform(new Vector(newDisplayRect.left, newDisplayRect.top));
                 var hw = matrix.Transform(new Vector(newDisplayRect.right - newDisplayRect.left, newDisplayRect.bottom - newDisplayRect.top));
-                this.Left = ul.X;
-                this.Top = ul.Y;
+                Left = ul.X;
+                Top = ul.Y;
                 UpdateWindowSize(hw.X, hw.Y);
 
                 // Remember the current DPI settings.
-                var oldDpiX = this.dpiInfo.MonitorDpiX;
-                var oldDpiY = this.dpiInfo.MonitorDpiY;
+                var oldDpiX = dpiInfo.MonitorDpiX;
+                var oldDpiY = dpiInfo.MonitorDpiY;
 
                 // Get the new DPI settings from wParam
                 var dpiX = (double)(wParam.ToInt32() >> 16);
                 var dpiY = (double)(wParam.ToInt32() & 0x0000FFFF);
 
-                if (oldDpiX != dpiX || oldDpiY != dpiY) {
-                    this.dpiInfo.UpdateMonitorDpi(dpiX, dpiY);
+                if (oldDpiX != dpiX || oldDpiY != dpiY)
+                {
+                    dpiInfo.UpdateMonitorDpi(dpiX, dpiY);
 
                     // update layout scale
                     UpdateLayoutTransform();
@@ -121,39 +150,53 @@ namespace FirstFloor.ModernUI.Windows.Controls
 
                 handled = true;
             }
+
             return IntPtr.Zero;
         }
-        
+
+        /// <summary>
+        /// Update layout transform.
+        /// </summary>
         private void UpdateLayoutTransform()
         {
-            if (this.isPerMonitorDpiAware) {
-                var root = (FrameworkElement)this.GetVisualChild(0);
-                if (root != null) {
-                    if (this.dpiInfo.ScaleX != 1 || this.dpiInfo.ScaleY != 1) {
-                        root.LayoutTransform = new ScaleTransform(this.dpiInfo.ScaleX, this.dpiInfo.ScaleY);
+            if (isPerMonitorDpiAware)
+            {
+                var root = (FrameworkElement)GetVisualChild(0);
+                if (root != null)
+                {
+                    if (dpiInfo.ScaleX != 1 || dpiInfo.ScaleY != 1)
+                    {
+                        root.LayoutTransform = new ScaleTransform(dpiInfo.ScaleX, dpiInfo.ScaleY);
                     }
-                    else {
+                    else
+                    {
                         root.LayoutTransform = null;
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Update window size.
+        /// </summary>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
         private void UpdateWindowSize(double width, double height)
         {
             // determine relative scalex and scaley
-            var relScaleX = width / this.Width;
-            var relScaleY = height / this.Height;
+            var relScaleX = width / Width;
+            var relScaleY = height / Height;
 
-            if (relScaleX != 1 || relScaleY != 1) {
+            if (relScaleX != 1 || relScaleY != 1)
+            {
                 // adjust window size constraints as well
-                this.MinWidth *= relScaleX;
-                this.MaxWidth *= relScaleX;
-                this.MinHeight *= relScaleY;
-                this.MaxHeight *= relScaleY;
+                MinWidth *= relScaleX;
+                MaxWidth *= relScaleX;
+                MinHeight *= relScaleY;
+                MaxHeight *= relScaleY;
 
-                this.Width = width;
-                this.Height = height;
+                Width = width;
+                Height = height;
             }
         }
 
@@ -162,39 +205,40 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         protected void RefreshMonitorDpi()
         {
-            if (!this.isPerMonitorDpiAware) {
+            if (!isPerMonitorDpiAware)
+            {
                 return;
             }
 
             // get the current DPI of the monitor of the window
-            var monitor = NativeMethods.MonitorFromWindow(this.source.Handle, NativeMethods.MONITOR_DEFAULTTONEAREST);
+            var monitor = NativeMethods.MonitorFromWindow(source.Handle, NativeMethods.MONITOR_DEFAULTTONEAREST);
 
             uint xDpi = 96;
             uint yDpi = 96;
-            if (NativeMethods.GetDpiForMonitor(monitor, (int)MonitorDpiType.EffectiveDpi, ref xDpi, ref yDpi) != NativeMethods.S_OK) {
+            if (NativeMethods.GetDpiForMonitor(monitor, (int)MonitorDpiType.EffectiveDpi, ref xDpi, ref yDpi) != NativeMethods.S_OK)
+            {
                 xDpi = 96;
                 yDpi = 96;
             }
+
             // vector contains the change of the old to new DPI
-            var dpiVector = this.dpiInfo.UpdateMonitorDpi(xDpi, yDpi);
+            var dpiVector = dpiInfo.UpdateMonitorDpi(xDpi, yDpi);
 
             // update Width and Height based on the current DPI of the monitor
-            UpdateWindowSize(this.Width * dpiVector.X, this.Height * dpiVector.Y);
+            UpdateWindowSize(Width * dpiVector.X, Height * dpiVector.Y);
 
             // update graphics and text based on the current DPI of the monitor
             UpdateLayoutTransform();
         }
-       
+
         /// <summary>
         /// Raises the <see cref="E:DpiChanged" /> event.
         /// </summary>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected virtual void OnDpiChanged(EventArgs e)
         {
-            var handler = this.DpiChanged;
-            if (handler != null) {
-                handler(this, e);
-            }
+            var handler = DpiChanged;
+            handler?.Invoke(this, e);
         }
     }
 }

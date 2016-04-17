@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System.Windows;
+    using System.Windows.Controls.Primitives;
+    using System.Windows.Media;
+
     /// <summary>
     /// Adds icon content to a standard button.
     /// </summary>
@@ -42,7 +36,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public ModernToggleButton()
         {
-            this.DefaultStyleKey = typeof(ModernToggleButton);
+            DefaultStyleKey = typeof(ModernToggleButton);
         }
 
         /// <summary>

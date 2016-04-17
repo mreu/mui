@@ -1,32 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System.Windows;
+
     /// <summary>
     /// Provides DPI information for a window.
     /// </summary>
     public class DpiInformation
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DpiInformation"/> class.
+        /// </summary>
+        /// <param name="wpfDpiX">The wpfDpiX.</param>
+        /// <param name="wpfDpiY">The wpfDpiY.</param>
         internal DpiInformation(double wpfDpiX, double wpfDpiY)
         {
-            this.WpfDpiX = wpfDpiX;
-            this.WpfDpiY = wpfDpiY;
-            this.ScaleX = 1;
-            this.ScaleY = 1;
+            WpfDpiX = wpfDpiX;
+            WpfDpiY = wpfDpiY;
+            ScaleX = 1;
+            ScaleY = 1;
         }
+
         /// <summary>
         /// Gets the horizontal resolution of the WPF rendering DPI.
         /// </summary>
-        public double WpfDpiX { get; private set; }
+        public double WpfDpiX { get; }
         /// <summary>
         /// Gets the vertical resolution of the WPF rendering DPI.
         /// </summary>
-        public double WpfDpiY { get; private set; }
+        public double WpfDpiY { get; }
         /// <summary>
         /// Gets the horizontal resolution of the current monitor DPI.
         /// </summary>
@@ -46,17 +47,23 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public double ScaleY { get; private set; }
 
+        /// <summary>
+        /// Update monitor dpi.
+        /// </summary>
+        /// <param name="dpiX">The dpiX.</param>
+        /// <param name="dpiY">The dpiY.</param>
+        /// <returns>The <see cref="Vector"/>.</returns>
         internal Vector UpdateMonitorDpi(double dpiX, double dpiY)
         {
             // calculate the vector of the current to new dpi
-            var oldDpiX = this.MonitorDpiX ?? this.WpfDpiX;
-            var oldDpiY = this.MonitorDpiY ?? this.WpfDpiY;
+            var oldDpiX = MonitorDpiX ?? WpfDpiX;
+            var oldDpiY = MonitorDpiY ?? WpfDpiY;
 
-            this.MonitorDpiX = dpiX;
-            this.MonitorDpiY = dpiY;
+            MonitorDpiX = dpiX;
+            MonitorDpiY = dpiY;
 
-            this.ScaleX = dpiX / this.WpfDpiX;
-            this.ScaleY = dpiY / this.WpfDpiY;
+            ScaleX = dpiX / WpfDpiX;
+            ScaleY = dpiY / WpfDpiY;
 
             return new Vector(dpiX / oldDpiX, dpiY / oldDpiY);
         }

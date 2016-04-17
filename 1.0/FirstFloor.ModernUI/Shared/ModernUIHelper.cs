@@ -1,31 +1,33 @@
-﻿using FirstFloor.ModernUI.Win32;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-namespace FirstFloor.ModernUI
+﻿namespace FirstFloor.ModernUI
 {
+    using System;
+    using System.ComponentModel;
+    using System.Windows;
+
+    using FirstFloor.ModernUI.Win32;
+
     /// <summary>
     /// Provides various common helper methods.
     /// </summary>
     public static class ModernUIHelper
     {
+        /// <summary>
+        /// The is in design mode.
+        /// </summary>
         private static bool? isInDesignMode;
 
         /// <summary>
-        /// Determines whether the current code is executed in a design time environment such as Visual Studio or Blend.
+        /// Gets a value indicating whether the current code is executed in a design time environment such as Visual Studio or Blend.
         /// </summary>
         public static bool IsInDesignMode
         {
             get
             {
-                if (!isInDesignMode.HasValue) {
+                if (!isInDesignMode.HasValue)
+                {
                     isInDesignMode = DesignerProperties.GetIsInDesignMode(new DependencyObject());
                 }
+
                 return isInDesignMode.Value;
             }
         }
@@ -36,19 +38,23 @@ namespace FirstFloor.ModernUI
         /// <returns>
         /// The DPI awareness of the current process
         /// </returns>
-        /// <exception cref="System.ComponentModel.Win32Exception"></exception>
+        /// <exception cref="System.ComponentModel.Win32Exception">Thrown if win32 returns error.</exception>
         public static ProcessDpiAwareness GetDpiAwareness()
         {
-            if (OSVersionHelper.IsWindows8Point1OrGreater) {
+            if (OSVersionHelper.IsWindows8Point1OrGreater)
+            {
                 ProcessDpiAwareness value;
                 var result = NativeMethods.GetProcessDpiAwareness(IntPtr.Zero, out value);
-                if (result != NativeMethods.S_OK) {
+                if (result != NativeMethods.S_OK)
+                {
                     throw new Win32Exception(result);
                 }
 
                 return value;
             }
-            if (OSVersionHelper.IsWindowsVistaOrGreater) {
+
+            if (OSVersionHelper.IsWindowsVistaOrGreater)
+            {
                 // use older Win32 API to query system DPI awareness
                 return NativeMethods.IsProcessDPIAware() ? ProcessDpiAwareness.SystemDpiAware : ProcessDpiAwareness.DpiUnaware;
             }
@@ -76,8 +82,10 @@ namespace FirstFloor.ModernUI
             var awareness = GetDpiAwareness();
 
             // initial awareness must be DpiUnaware
-            if (awareness == ProcessDpiAwareness.DpiUnaware) {
-                if (OSVersionHelper.IsWindows8Point1OrGreater) {
+            if (awareness == ProcessDpiAwareness.DpiUnaware)
+            {
+                if (OSVersionHelper.IsWindows8Point1OrGreater)
+                {
                     return NativeMethods.SetProcessDpiAwareness(ProcessDpiAwareness.PerMonitorDpiAware) == NativeMethods.S_OK;
                 }
 

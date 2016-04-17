@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
-
-namespace FirstFloor.ModernUI.Windows.Converters
+﻿namespace FirstFloor.ModernUI.Windows.Converters
 {
+    using System;
+    using System.Windows;
+    using System.Windows.Data;
+
     /// <summary>
     /// Converts a boolean value to a font weight (false: normal, true: bold)
     /// </summary>
@@ -25,12 +22,14 @@ namespace FirstFloor.ModernUI.Windows.Converters
         /// </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            bool inverse = (parameter as string) == "inverse";
+            var inverse = (parameter as string) == "inverse";
 
             var bold = value as bool?;
-            if (bold.HasValue && bold.Value) {
+            if (bold.HasValue && bold.Value)
+            {
                 return inverse ? FontWeights.Normal : FontWeights.Bold;
             }
+
             return inverse ? FontWeights.Bold : FontWeights.Normal;
         }
 

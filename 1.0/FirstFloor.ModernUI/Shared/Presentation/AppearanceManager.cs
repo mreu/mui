@@ -1,16 +1,13 @@
-﻿using FirstFloor.ModernUI.Windows.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
+    using System;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Input;
+    using System.Windows.Media;
+
+    using FirstFloor.ModernUI.Windows.Navigation;
+
     /// <summary>
     /// Manages the theme, font size and accent colors for a Modern UI application.
     /// </summary>
@@ -30,50 +27,64 @@ namespace FirstFloor.ModernUI.Presentation
         /// The resource key for the accent color.
         /// </summary>
         public const string KeyAccentColor = "AccentColor";
+
         /// <summary>
         /// The resource key for the accent brush.
         /// </summary>
         public const string KeyAccent = "Accent";
+
         /// <summary>
         /// The resource key for the default font size.
         /// </summary>
         public const string KeyDefaultFontSize = "DefaultFontSize";
+
         /// <summary>
         /// The resource key for the fixed font size.
         /// </summary>
         public const string KeyFixedFontSize = "FixedFontSize";
-
-        private static AppearanceManager current = new AppearanceManager();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppearanceManager"/> class.
         /// </summary>
         private AppearanceManager()
         {
-            DarkThemeCommand = new RelayCommand(o => ThemeSource = DarkThemeSource, o => !DarkThemeSource.Equals(ThemeSource));
-            LightThemeCommand = new RelayCommand(o => ThemeSource = LightThemeSource, o => !LightThemeSource.Equals(ThemeSource));
-            SetThemeCommand = new RelayCommand(o => {
-                var uri = NavigationHelper.ToUri(o);
-                if (uri != null) {
-                    ThemeSource = uri;
-                }
-            }, o => o is Uri || o is string);
-            LargeFontSizeCommand = new RelayCommand(o => FontSize = FontSize.Large);
-            SmallFontSizeCommand = new RelayCommand(o => FontSize = FontSize.Small);
-            AccentColorCommand = new RelayCommand(o => {
-                if (o is Color) {
-                    AccentColor = (Color)o;
-                }
-                else {
-                    // parse color from string
-                    var str = o as string;
-                    if (str != null) {
-                        AccentColor = (Color)ColorConverter.ConvertFromString(str);
-                    }
-                }
-            }, o => o is Color || o is string);
+            DarkThemeCommand = new RelayCommand(x => ThemeSource = DarkThemeSource, x => !DarkThemeSource.Equals(ThemeSource));
+            LightThemeCommand = new RelayCommand(x => ThemeSource = LightThemeSource, x => !LightThemeSource.Equals(ThemeSource));
+            SetThemeCommand = new RelayCommand(
+                x =>
+                    {
+                        var uri = NavigationHelper.ToUri(x);
+                        if (uri != null)
+                        {
+                            ThemeSource = uri;
+                        }
+                    }, x => x is Uri || x is string);
+            LargeFontSizeCommand = new RelayCommand(x => FontSize = FontSize.Large);
+            SmallFontSizeCommand = new RelayCommand(x => FontSize = FontSize.Small);
+            AccentColorCommand = new RelayCommand(
+                x =>
+                    {
+                        if (x is Color)
+                        {
+                            AccentColor = (Color)x;
+                        }
+                        else
+                        {
+                            // parse color from string
+                            var str = x as string;
+                            if (str != null)
+                            {
+                                // ReSharper disable once PossibleNullReferenceException
+                                AccentColor = (Color)ColorConverter.ConvertFromString(str);
+                            }
+                        }
+                    }, x => x is Color || x is string);
         }
 
+        /// <summary>
+        /// Get theme dictionary.
+        /// </summary>
+        /// <returns>The <see cref="ResourceDictionary"/>.</returns>
         private ResourceDictionary GetThemeDictionary()
         {
             // determine the current theme by looking at the app resources and return the first dictionary having the resource key 'WindowBackground' defined.
@@ -82,21 +93,27 @@ namespace FirstFloor.ModernUI.Presentation
                     select dict).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Get theme source.
+        /// </summary>
+        /// <returns>The <see cref="Uri"/>.</returns>
         private Uri GetThemeSource()
         {
             var dict = GetThemeDictionary();
-            if (dict != null) {
-                return dict.Source;
-            }
-
-            // could not determine the theme dictionary
-            return null;
+            return dict?.Source;
         }
 
+        /// <summary>
+        /// Set theme source.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="useThemeAccentColor">The useThemeAccentColor.</param>
+        /// <exception cref="ArgumentNullException">If source is null.</exception>
         private void SetThemeSource(Uri source, bool useThemeAccentColor)
         {
-            if (source == null) {
-                throw new ArgumentNullException("source");
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
             }
 
             var oldThemeDict = GetThemeDictionary();
@@ -105,11 +122,13 @@ namespace FirstFloor.ModernUI.Presentation
 
             // if theme defines an accent color, use it
             var accentColor = themeDict[KeyAccentColor] as Color?;
-            if (accentColor.HasValue) {
+            if (accentColor.HasValue)
+            {
                 // remove from the theme dictionary and apply globally if useThemeAccentColor is true
                 themeDict.Remove(KeyAccentColor);
 
-                if (useThemeAccentColor) {
+                if (useThemeAccentColor)
+                {
                     ApplyAccentColor(accentColor.Value);
                 }
             }
@@ -118,13 +137,18 @@ namespace FirstFloor.ModernUI.Presentation
             dictionaries.Add(themeDict);
 
             // remove old theme
-            if (oldThemeDict != null) {
+            if (oldThemeDict != null)
+            {
                 dictionaries.Remove(oldThemeDict);
             }
 
             OnPropertyChanged("ThemeSource");
         }
 
+        /// <summary>
+        /// Apply the accent color.
+        /// </summary>
+        /// <param name="accentColor">The accentColor.</param>
         private void ApplyAccentColor(Color accentColor)
         {
             // set accent color and brush resources
@@ -132,21 +156,31 @@ namespace FirstFloor.ModernUI.Presentation
             Application.Current.Resources[KeyAccent] = new SolidColorBrush(accentColor);
         }
 
+        /// <summary>
+        /// Get the font size.
+        /// </summary>
+        /// <returns>The <see cref="FontSize"/>.</returns>
         private FontSize GetFontSize()
         {
             var defaultFontSize = Application.Current.Resources[KeyDefaultFontSize] as double?;
-             
-            if (defaultFontSize.HasValue) {
-                return defaultFontSize.Value == 12D ? FontSize.Small : FontSize.Large;
+
+            if (defaultFontSize.HasValue)
+            {
+                return defaultFontSize.Value <= 12.1 ? FontSize.Small : FontSize.Large;
             }
 
             // default large
             return FontSize.Large;
         }
 
+        /// <summary>
+        /// Set font size.
+        /// </summary>
+        /// <param name="fontSize">The fontSize.</param>
         private void SetFontSize(FontSize fontSize)
         {
-            if (GetFontSize() == fontSize) {
+            if (GetFontSize() == fontSize)
+            {
                 return;
             }
 
@@ -156,11 +190,16 @@ namespace FirstFloor.ModernUI.Presentation
             OnPropertyChanged("FontSize");
         }
 
+        /// <summary>
+        /// Get accent color.
+        /// </summary>
+        /// <returns>The <see cref="Color"/>.</returns>
         private Color GetAccentColor()
         {
             var accentColor = Application.Current.Resources[KeyAccentColor] as Color?;
 
-            if (accentColor.HasValue) {
+            if (accentColor.HasValue)
+            {
                 return accentColor.Value;
             }
 
@@ -168,13 +207,18 @@ namespace FirstFloor.ModernUI.Presentation
             return Color.FromArgb(0xff, 0x1b, 0xa1, 0xe2);
         }
 
+        /// <summary>
+        /// Set accent color.
+        /// </summary>
+        /// <param name="value">The value.</param>
         private void SetAccentColor(Color value)
         {
             ApplyAccentColor(value);
 
             // re-apply theme to ensure brushes referencing AccentColor are updated
             var themeSource = GetThemeSource();
-            if (themeSource != null) {
+            if (themeSource != null)
+            {
                 SetThemeSource(themeSource, false);
             }
 
@@ -184,33 +228,30 @@ namespace FirstFloor.ModernUI.Presentation
         /// <summary>
         /// Gets the current <see cref="AppearanceManager"/> instance.
         /// </summary>
-        public static AppearanceManager Current
-        {
-            get { return current; }
-        }
+        public static AppearanceManager Current { get; } = new AppearanceManager();
 
         /// <summary>
-        /// The command that sets the dark theme.
+        /// Gets the command that sets the dark theme.
         /// </summary>
         public ICommand DarkThemeCommand { get; private set; }
         /// <summary>
-        /// The command that sets the light color theme.
+        /// Gets the command that sets the light color theme.
         /// </summary>
         public ICommand LightThemeCommand { get; private set; }
         /// <summary>
-        /// The command that sets a custom theme.
+        /// Gets the command that sets a custom theme.
         /// </summary>
         public ICommand SetThemeCommand { get; private set; }
         /// <summary>
-        /// The command that sets the large font size.
+        /// Gets the command that sets the large font size.
         /// </summary>
         public ICommand LargeFontSizeCommand { get; private set; }
         /// <summary>
-        /// The command that sets the small font size.
+        /// Gets the command that sets the small font size.
         /// </summary>
         public ICommand SmallFontSizeCommand { get; private set; }
         /// <summary>
-        /// The command that sets the accent color.
+        /// Gets the command that sets the accent color.
         /// </summary>
         public ICommand AccentColorCommand { get; private set; }
 

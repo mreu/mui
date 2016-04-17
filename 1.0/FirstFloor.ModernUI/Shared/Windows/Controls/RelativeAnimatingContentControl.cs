@@ -1,29 +1,25 @@
-﻿/* 
+﻿/*
     Copyright (c) 2011 Microsoft Corporation.  All rights reserved.
-    Use of this sample source code is subject to the terms of the Microsoft license 
+    Use of this sample source code is subject to the terms of the Microsoft license
     agreement under which you licensed this sample source code and is provided AS-IS.
-    If you did not accept the terms of the license agreement, you are not authorized 
-    to use this sample source code.  For the terms of the license, please see the 
+    If you did not accept the terms of the license agreement, you are not authorized
+    to use this sample source code.  For the terms of the license, please see the
     license agreement between you and Microsoft.
-  
-    To see all Code Samples for Windows Phone, visit http://go.microsoft.com/fwlink/?LinkID=219604 
-  
-*/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
+    To see all Code Samples for Windows Phone, visit http://go.microsoft.com/fwlink/?LinkID=219604
+
+*/
 
 namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Media.Animation;
+
     /// <summary>
-    /// The platform does not currently support relative sized translation values. 
+    /// The platform does not currently support relative sized translation values.
     /// This primitive control walks through visual state animation storyboards
     /// and looks for identifying values to use as percentages.
     /// </summary>
@@ -31,29 +27,28 @@ namespace FirstFloor.ModernUI.Windows.Controls
     {
         /// <summary>
         /// A simple Epsilon-style value used for trying to determine if a double
-        /// has an identifying value. 
+        /// has an identifying value.
         /// </summary>
         private const double SimpleDoubleComparisonEpsilon = 0.000009;
 
         /// <summary>
         /// The last known width of the control.
         /// </summary>
-        private double _knownWidth;
+        private double knownWidth;
 
         /// <summary>
         /// The last known height of the control.
         /// </summary>
-        private double _knownHeight;
+        private double knownHeight;
 
         /// <summary>
         /// A set of custom animation adapters used to update the animation
         /// storyboards when the size of the control changes.
         /// </summary>
-        private List<AnimationValueAdapter> _specialAnimations;
+        private List<AnimationValueAdapter> specialAnimations;
 
         /// <summary>
-        /// Initializes a new instance of the RelativeAnimatingContentControl
-        /// type.
+        /// Initializes a new instance of the <see cref="RelativeAnimatingContentControl"/> class.
         /// </summary>
         public RelativeAnimatingContentControl()
         {
@@ -67,9 +62,10 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <param name="e">The event arguments.</param>
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (e != null && e.NewSize.Height > 0 && e.NewSize.Width > 0) {
-                _knownWidth = e.NewSize.Width;
-                _knownHeight = e.NewSize.Height;
+            if (e != null && e.NewSize.Height > 0 && e.NewSize.Width > 0)
+            {
+                knownWidth = e.NewSize.Width;
+                knownHeight = e.NewSize.Height;
 
                 UpdateAnyAnimationValues();
             }
@@ -82,35 +78,43 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         private void UpdateAnyAnimationValues()
         {
-            if (_knownHeight > 0 && _knownWidth > 0) {
+            if (knownHeight > 0 && knownWidth > 0)
+            {
                 // Initially, before any special animations have been found,
-                // the visual state groups of the control must be explored. 
+                // the visual state groups of the control must be explored.
                 // By definition they must be at the implementation root of the
                 // control.
-                if (_specialAnimations == null) {
-                    _specialAnimations = new List<AnimationValueAdapter>();
+                if (specialAnimations == null)
+                {
+                    specialAnimations = new List<AnimationValueAdapter>();
 
-                    foreach (VisualStateGroup group in VisualStateManager.GetVisualStateGroups(this)) {
-                        if (group == null) {
+                    foreach (VisualStateGroup group in VisualStateManager.GetVisualStateGroups(this))
+                    {
+                        if (group == null)
+                        {
                             continue;
                         }
-                        foreach (VisualState state in group.States) {
-                            if (state != null) {
-                                Storyboard sb = state.Storyboard;
 
-                                if (sb != null) {
-                                    // Examine all children of the storyboards,
-                                    // looking for either type of double
-                                    // animation.
-                                    foreach (Timeline timeline in sb.Children) {
-                                        DoubleAnimation da = timeline as DoubleAnimation;
-                                        DoubleAnimationUsingKeyFrames dakeys = timeline as DoubleAnimationUsingKeyFrames;
-                                        if (da != null) {
-                                            ProcessDoubleAnimation(da);
-                                        }
-                                        else if (dakeys != null) {
-                                            ProcessDoubleAnimationWithKeys(dakeys);
-                                        }
+                        foreach (VisualState state in group.States)
+                        {
+                            var sb = state?.Storyboard;
+
+                            if (sb != null)
+                            {
+                                // Examine all children of the storyboards,
+                                // looking for either type of double
+                                // animation.
+                                foreach (var timeline in sb.Children)
+                                {
+                                    var da = timeline as DoubleAnimation;
+                                    var dakeys = timeline as DoubleAnimationUsingKeyFrames;
+                                    if (da != null)
+                                    {
+                                        ProcessDoubleAnimation(da);
+                                    }
+                                    else if (dakeys != null)
+                                    {
+                                        ProcessDoubleAnimationWithKeys(dakeys);
                                     }
                                 }
                             }
@@ -122,20 +126,20 @@ namespace FirstFloor.ModernUI.Windows.Controls
                 UpdateKnownAnimations();
 
                 // HACK: force storyboard to use new values
-                foreach (VisualStateGroup group in VisualStateManager.GetVisualStateGroups(this)) {
-                    if (group == null) {
+                foreach (VisualStateGroup group in VisualStateManager.GetVisualStateGroups(this))
+                {
+                    if (group == null)
+                    {
                         continue;
                     }
-                    foreach (VisualState state in group.States) {
-                        if (state != null) {
-                            Storyboard sb = state.Storyboard;
 
-                            if (sb != null) {
-                                // need to kick the storyboard, otherwise new values are not taken into account.
-                                // it's sad, really don't want to start storyboards in vsm, but I see no other option
-                                sb.Begin(this);     
-                            }
-                        }
+                    foreach (VisualState state in group.States)
+                    {
+                        var sb = state?.Storyboard;
+
+                        // need to kick the storyboard, otherwise new values are not taken into account.
+                        // it's sad, really don't want to start storyboards in vsm, but I see no other option
+                        sb?.Begin(this);
                     }
                 }
             }
@@ -147,23 +151,26 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         private void UpdateKnownAnimations()
         {
-            foreach (AnimationValueAdapter adapter in _specialAnimations) {
-                adapter.UpdateWithNewDimension(_knownWidth, _knownHeight);
+            foreach (var adapter in specialAnimations)
+            {
+                adapter.UpdateWithNewDimension(knownWidth, knownHeight);
             }
         }
 
         /// <summary>
-        /// Processes a double animation with keyframes, looking for known 
+        /// Processes a double animation with keyframes, looking for known
         /// special values to store with an adapter.
         /// </summary>
         /// <param name="da">The double animation using key frames instance.</param>
         private void ProcessDoubleAnimationWithKeys(DoubleAnimationUsingKeyFrames da)
         {
             // Look through all keyframes in the instance.
-            foreach (DoubleKeyFrame frame in da.KeyFrames) {
+            foreach (DoubleKeyFrame frame in da.KeyFrames)
+            {
                 var d = DoubleAnimationFrameAdapter.GetDimensionFromIdentifyingValue(frame.Value);
-                if (d.HasValue) {
-                    _specialAnimations.Add(new DoubleAnimationFrameAdapter(d.Value, frame));
+                if (d.HasValue)
+                {
+                    specialAnimations.Add(new DoubleAnimationFrameAdapter(d.Value, frame));
                 }
             }
         }
@@ -175,23 +182,27 @@ namespace FirstFloor.ModernUI.Windows.Controls
         private void ProcessDoubleAnimation(DoubleAnimation da)
         {
             // Look for a special value in the To property.
-            if (da.To.HasValue) {
+            if (da.To.HasValue)
+            {
                 var d = DoubleAnimationToAdapter.GetDimensionFromIdentifyingValue(da.To.Value);
-                if (d.HasValue) {
-                    _specialAnimations.Add(new DoubleAnimationToAdapter(d.Value, da));
+                if (d.HasValue)
+                {
+                    specialAnimations.Add(new DoubleAnimationToAdapter(d.Value, da));
                 }
             }
 
             // Look for a special value in the From property.
-            if (da.From.HasValue) {
+            if (da.From.HasValue)
+            {
                 var d = DoubleAnimationFromAdapter.GetDimensionFromIdentifyingValue(da.To.Value);
-                if (d.HasValue) {
-                    _specialAnimations.Add(new DoubleAnimationFromAdapter(d.Value, da));
+                if (d.HasValue)
+                {
+                    specialAnimations.Add(new DoubleAnimationFromAdapter(d.Value, da));
                 }
             }
         }
 
-        #region Private animation updating system
+        #region Private Animation Updating System
         /// <summary>
         /// A selection of dimensions of interest for updating an animation.
         /// </summary>
@@ -209,22 +220,17 @@ namespace FirstFloor.ModernUI.Windows.Controls
         }
 
         /// <summary>
-        /// A simple class designed to store information about a specific 
+        /// A simple class designed to store information about a specific
         /// animation instance and its properties. Able to update the values at
         /// runtime.
         /// </summary>
         private abstract class AnimationValueAdapter
         {
             /// <summary>
-            /// Gets or sets the original double value.
-            /// </summary>
-            protected double OriginalValue { get; set; }
-
-            /// <summary>
-            /// Initializes a new instance of the AnimationValueAdapter type.
+            /// Initializes a new instance of the <see cref="AnimationValueAdapter"/> class.
             /// </summary>
             /// <param name="dimension">The dimension of interest for updates.</param>
-            public AnimationValueAdapter(DoubleAnimationDimension dimension)
+            protected AnimationValueAdapter(DoubleAnimationDimension dimension)
             {
                 Dimension = dimension;
             }
@@ -232,7 +238,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// <summary>
             /// Gets the dimension of interest for the control.
             /// </summary>
-            public DoubleAnimationDimension Dimension { get; private set; }
+            protected DoubleAnimationDimension Dimension { get; }
 
             /// <summary>
             /// Updates the original instance based on new dimension information
@@ -244,12 +250,16 @@ namespace FirstFloor.ModernUI.Windows.Controls
             public abstract void UpdateWithNewDimension(double width, double height);
         }
 
+        /// <summary>
+        /// The general animation value adapter class.
+        /// </summary>
+        /// <typeparam name="T">The instance type.</typeparam>
         private abstract class GeneralAnimationValueAdapter<T> : AnimationValueAdapter
         {
             /// <summary>
-            /// Stores the animation instance.
+            /// Gets the animation instance.
             /// </summary>
-            protected T Instance { get; set; }
+            protected T Instance { get; }
 
             /// <summary>
             /// Gets the value of the underlying property of interest.
@@ -267,28 +277,27 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// Gets the initial value (minus the identifying value portion) that the
             /// designer stored within the visual state animation property.
             /// </summary>
-            protected double InitialValue { get; private set; }
+            private double InitialValue { get; }
 
             /// <summary>
             /// The ratio based on the original identifying value, used for computing
             /// the updated animation property of interest when the size of the
             /// control changes.
             /// </summary>
-            private double _ratio;
+            private readonly double ratio;
 
             /// <summary>
-            /// Initializes a new instance of the GeneralAnimationValueAdapter
-            /// type.
+            /// Initializes a new instance of the <see cref="GeneralAnimationValueAdapter{T}"/> class.
             /// </summary>
             /// <param name="d">The dimension of interest.</param>
             /// <param name="instance">The animation type instance.</param>
-            public GeneralAnimationValueAdapter(DoubleAnimationDimension d, T instance)
+            protected GeneralAnimationValueAdapter(DoubleAnimationDimension d, T instance)
                 : base(d)
             {
                 Instance = instance;
 
                 InitialValue = StripIdentifyingValueOff(GetValue());
-                _ratio = InitialValue / 100;
+                ratio = InitialValue / 100;
             }
 
             /// <summary>
@@ -297,7 +306,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// <param name="number">The initial number.</param>
             /// <returns>Returns a double with an adjustment for the identifying
             /// value portion of the number.</returns>
-            public double StripIdentifyingValueOff(double number)
+            private double StripIdentifyingValueOff(double number)
             {
                 return Dimension == DoubleAnimationDimension.Width ? number - .1 : number - .2;
             }
@@ -311,15 +320,19 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// contained an identifying value; otherwise, returns null.</returns>
             public static DoubleAnimationDimension? GetDimensionFromIdentifyingValue(double number)
             {
-                double floor = Math.Floor(number);
-                double remainder = number - floor;
+                var floor = Math.Floor(number);
+                var remainder = number - floor;
 
-                if (remainder >= .1 - SimpleDoubleComparisonEpsilon && remainder <= .1 + SimpleDoubleComparisonEpsilon) {
+                if (remainder >= .1 - SimpleDoubleComparisonEpsilon && remainder <= .1 + SimpleDoubleComparisonEpsilon)
+                {
                     return DoubleAnimationDimension.Width;
                 }
-                if (remainder >= .2 - SimpleDoubleComparisonEpsilon && remainder <= .2 + SimpleDoubleComparisonEpsilon) {
+
+                if (remainder >= .2 - SimpleDoubleComparisonEpsilon && remainder <= .2 + SimpleDoubleComparisonEpsilon)
+                {
                     return DoubleAnimationDimension.Height;
                 }
+
                 return null;
             }
 
@@ -331,7 +344,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// <param name="height">The height of the control.</param>
             public override void UpdateWithNewDimension(double width, double height)
             {
-                double size = Dimension == DoubleAnimationDimension.Width ? width : height;
+                var size = Dimension == DoubleAnimationDimension.Width ? width : height;
                 UpdateValue(size);
             }
 
@@ -342,7 +355,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             /// computation.</param>
             private void UpdateValue(double sizeToUse)
             {
-                SetValue(sizeToUse * _ratio);
+                SetValue(sizeToUse * ratio);
             }
         }
 
@@ -370,7 +383,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             }
 
             /// <summary>
-            /// Initializes a new instance of the DoubleAnimationToAdapter type.
+            /// Initializes a new instance of the <see cref="DoubleAnimationToAdapter"/> class.
             /// </summary>
             /// <param name="dimension">The dimension of interest.</param>
             /// <param name="instance">The instance of the animation type.</param>
@@ -404,8 +417,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             }
 
             /// <summary>
-            /// Initializes a new instance of the DoubleAnimationFromAdapter 
-            /// type.
+            /// Initializes a new instance of the <see cref="DoubleAnimationFromAdapter"/> class.
             /// </summary>
             /// <param name="dimension">The dimension of interest.</param>
             /// <param name="instance">The instance of the animation type.</param>
@@ -439,8 +451,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
             }
 
             /// <summary>
-            /// Initializes a new instance of the DoubleAnimationFrameAdapter
-            /// type.
+            /// Initializes a new instance of the <see cref="DoubleAnimationFrameAdapter"/> class.
             /// </summary>
             /// <param name="dimension">The dimension of interest.</param>
             /// <param name="frame">The instance of the animation type.</param>

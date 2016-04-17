@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-
-namespace FirstFloor.ModernUI.Windows.Converters
+﻿namespace FirstFloor.ModernUI.Windows.Converters
 {
+    using System;
+    using System.Windows.Data;
+
     /// <summary>
     /// Converts string values to upper case.
     /// </summary>
@@ -24,12 +21,9 @@ namespace FirstFloor.ModernUI.Windows.Converters
         /// </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value != null) {
-                var strValue = value.ToString();
+            var strValue = value?.ToString();
 
-                return strValue.ToUpperInvariant();
-            }
-            return null;
+            return strValue?.ToUpperInvariant();
         }
 
         /// <summary>

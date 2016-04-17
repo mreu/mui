@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-
-namespace FirstFloor.ModernUI.Windows.Media
+﻿namespace FirstFloor.ModernUI.Windows.Media
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Media;
+
     /// <summary>
     /// Provides addition visual tree helper methods.
     /// </summary>
@@ -15,31 +14,36 @@ namespace FirstFloor.ModernUI.Windows.Media
         /// <summary>
         /// Gets specified visual state group.
         /// </summary>
-        /// <param name="dependencyObject">The dependency object.</param>
-        /// <param name="groupName">Name of the group.</param>
-        /// <returns></returns>
+        /// <param name="dependencyObject">The dependencyObject.</param>
+        /// <param name="groupName">The groupName.</param>
+        /// <returns>The <see cref="VisualStateGroup"/>.</returns>
         public static VisualStateGroup TryGetVisualStateGroup(this DependencyObject dependencyObject, string groupName)
         {
-            FrameworkElement root = GetImplementationRoot(dependencyObject);
-            if (root == null) {
+            var root = GetImplementationRoot(dependencyObject);
+            if (root == null)
+            {
                 return null;
             }
+
+            // ReSharper disable once AssignNullToNotNullAttribute
             return (from @group in VisualStateManager.GetVisualStateGroups(root).OfType<VisualStateGroup>()
                     where string.CompareOrdinal(groupName, @group.Name) == 0
-                    select @group).FirstOrDefault<VisualStateGroup>();
+                    select @group).FirstOrDefault();
         }
 
         /// <summary>
         /// Gets the implementation root.
         /// </summary>
-        /// <param name="dependencyObject">The dependency object.</param>
-        /// <returns></returns>
+        /// <param name="dependencyObject">The dependencyObject.</param>
+        /// <returns>The <see cref="FrameworkElement"/>.</returns>
         public static FrameworkElement GetImplementationRoot(this DependencyObject dependencyObject)
         {
-            if (1 != VisualTreeHelper.GetChildrenCount(dependencyObject)) {
+            if (VisualTreeHelper.GetChildrenCount(dependencyObject) != 1)
+            {
                 return null;
             }
-            return (VisualTreeHelper.GetChild(dependencyObject, 0) as FrameworkElement);
+
+            return VisualTreeHelper.GetChild(dependencyObject, 0) as FrameworkElement;
         }
 
         /// <summary>
@@ -52,12 +56,15 @@ namespace FirstFloor.ModernUI.Windows.Media
         public static IEnumerable<DependencyObject> Ancestors(this DependencyObject dependencyObject)
         {
             var parent = dependencyObject;
-            while (true) {
+            while (true)
+            {
                 parent = GetParent(parent);
-                if (parent != null) {
+                if (parent != null)
+                {
                     yield return parent;
                 }
-                else {
+                else
+                {
                     break;
                 }
             }
@@ -72,18 +79,23 @@ namespace FirstFloor.ModernUI.Windows.Media
         /// </returns>
         public static IEnumerable<DependencyObject> AncestorsAndSelf(this DependencyObject dependencyObject)
         {
-            if (dependencyObject == null) {
-                throw new ArgumentNullException("dependencyObject");
+            if (dependencyObject == null)
+            {
+                throw new ArgumentNullException(nameof(dependencyObject));
             }
 
             var parent = dependencyObject;
-            while (true) {
-                if (parent != null) {
+            while (true)
+            {
+                if (parent != null)
+                {
                     yield return parent;
                 }
-                else {
+                else
+                {
                     break;
                 }
+
                 parent = GetParent(parent);
             }
         }
@@ -95,19 +107,22 @@ namespace FirstFloor.ModernUI.Windows.Media
         /// <returns>The parent object or null if there is no parent.</returns>
         public static DependencyObject GetParent(this DependencyObject dependencyObject)
         {
-            if (dependencyObject == null) {
-                throw new ArgumentNullException("dependencyObject");
+            if (dependencyObject == null)
+            {
+                throw new ArgumentNullException(nameof(dependencyObject));
             }
 
             var ce = dependencyObject as ContentElement;
-            if (ce != null) {
+            if (ce != null)
+            {
                 var parent = ContentOperations.GetParent(ce);
-                if (parent != null) {
+                if (parent != null)
+                {
                     return parent;
                 }
 
                 var fce = ce as FrameworkContentElement;
-                return fce != null ? fce.Parent : null;
+                return fce?.Parent;
             }
 
             return VisualTreeHelper.GetParent(dependencyObject);

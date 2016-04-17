@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FirstFloor.ModernUI.Presentation
+﻿namespace FirstFloor.ModernUI.Presentation
 {
+    using System;
+
     /// <summary>
     /// The command that relays its functionality by invoking delegates.
     /// </summary>
     public class RelayCommand
         : CommandBase
     {
-        private Action<object> execute;
-        private Func<object, bool> canExecute;
+        /// <summary>
+        /// The execute (readonly).
+        /// </summary>
+        private readonly Action<object> execute;
+
+        /// <summary>
+        /// The can execute (readonly).
+        /// </summary>
+        private readonly Func<object, bool> canExecute;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RelayCommand"/> class.
@@ -22,13 +25,17 @@ namespace FirstFloor.ModernUI.Presentation
         /// <param name="canExecute">The can execute.</param>
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
-            if (execute == null) {
-                throw new ArgumentNullException("execute");
+            if (execute == null)
+            {
+                throw new ArgumentNullException(nameof(execute));
             }
-            if (canExecute == null) {
-                // no can execute provided, then always executable
-                canExecute = (o) => true;
+
+            if (canExecute == null)
+            {
+                // no canExecute provided, then always executable
+                canExecute = x => true;
             }
+
             this.execute = execute;
             this.canExecute = canExecute;
         }

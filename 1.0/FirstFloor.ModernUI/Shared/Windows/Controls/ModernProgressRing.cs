@@ -1,23 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-
-namespace FirstFloor.ModernUI.Windows.Controls
+﻿namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System.Windows;
+    using System.Windows.Controls;
+
     /// <summary>
-    /// Represents a control that indicates that an operation is ongoing. 
+    /// Represents a control that indicates that an operation is ongoing.
     /// </summary>
     [TemplateVisualState(GroupName = GroupActiveStates, Name = StateInactive)]
     [TemplateVisualState(GroupName = GroupActiveStates, Name = StateActive)]
     public class ModernProgressRing
         : Control
     {
+        /// <summary>
+        /// The group active states (const). Value: "ActiveStates".
+        /// </summary>
         private const string GroupActiveStates = "ActiveStates";
+
+        /// <summary>
+        /// The state inactive (const). Value: "Inactive".
+        /// </summary>
         private const string StateInactive = "Inactive";
+
+        /// <summary>
+        /// The state active (const). Value: "Active".
+        /// </summary>
         private const string StateActive = "Active";
 
         /// <summary>
@@ -30,12 +36,16 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public ModernProgressRing()
         {
-            this.DefaultStyleKey = typeof(ModernProgressRing);
+            DefaultStyleKey = typeof(ModernProgressRing);
         }
 
+        /// <summary>
+        /// Goto current state.
+        /// </summary>
+        /// <param name="animate">The animate.</param>
         private void GotoCurrentState(bool animate)
         {
-            var state = this.IsActive ? StateActive : StateInactive;
+            var state = IsActive ? StateActive : StateInactive;
 
             VisualStateManager.GoToState(this, state, animate);
         }
@@ -50,13 +60,18 @@ namespace FirstFloor.ModernUI.Windows.Controls
             GotoCurrentState(false);
         }
 
+        /// <summary>
+        /// Raises the is active changed event.
+        /// </summary>
+        /// <param name="o">The o.</param>
+        /// <param name="e">The dependency property changed event arguments.</param>
         private static void OnIsActiveChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
             ((ModernProgressRing)o).GotoCurrentState(true);
         }
 
         /// <summary>
-        /// Gets or sets a value that indicates whether the <see cref="ModernProgressRing"/> is showing progress.
+        /// Gets or sets a value indicating whether the <see cref="ModernProgressRing"/> is showing progress.
         /// </summary>
         public bool IsActive
         {

@@ -3,32 +3,29 @@
 // Please see http://go.microsoft.com/fwlink/?LinkID=131993] for details.
 // All other rights reserved.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media.Animation;
-using System.Windows.Controls;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using FirstFloor.ModernUI.Windows.Media;
-
 namespace FirstFloor.ModernUI.Windows.Controls
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Media.Animation;
+
+    using FirstFloor.ModernUI.Windows.Media;
+
     /// <summary>
-    /// Represents a control with a single piece of content and when that content 
-    /// changes performs a transition animation. 
+    /// Represents a control with a single piece of content and when that content
+    /// changes performs a transition animation.
     /// </summary>
     /// <QualityBand>Experimental</QualityBand>
     /// <remarks>The API for this control will change considerably in the future.</remarks>
-    //[TemplateVisualState(GroupName = PresentationGroup, Name = NormalState)]
-    //[TemplateVisualState(GroupName = PresentationGroup, Name = DefaultTransitionState)]
     [TemplatePart(Name = PreviousContentPresentationSitePartName, Type = typeof(ContentControl))]
     [TemplatePart(Name = CurrentContentPresentationSitePartName, Type = typeof(ContentControl))]
     public class TransitioningContentControl : ContentControl
     {
-        #region Visual state names
+        #region Visual State Names
         /// <summary>
         /// The name of the group that holds the presentation states.
         /// </summary>
@@ -46,7 +43,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         public const string DefaultTransitionState = "DefaultTransition";
         #endregion Visual state names
 
-        #region Template part names
+        #region Template Part Names
         /// <summary>
         /// The name of the control that will display the previous content.
         /// </summary>
@@ -73,8 +70,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         private ContentPresenter PreviousContentPresentationSite { get; set; }
         #endregion TemplateParts
 
-        #region public bool IsTransitioning
-
+        #region Public Bool IsTransitioning
         /// <summary>
         /// Occurs when the IsTransitioning value has changed.
         /// </summary>
@@ -83,7 +79,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <summary>
         /// Indicates whether the control allows writing IsTransitioning.
         /// </summary>
-        private bool _allowIsTransitioningWrite;
+        private bool allowIsTransitioningWrite;
 
         /// <summary>
         /// Gets a value indicating whether this instance is currently performing
@@ -91,16 +87,17 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// </summary>
         public bool IsTransitioning
         {
-            get { return (bool)GetValue(IsTransitioningProperty); }
+            get
+            {
+                return (bool)GetValue(IsTransitioningProperty);
+            }
+
             private set
             {
-                _allowIsTransitioningWrite = true;
+                allowIsTransitioningWrite = true;
                 SetValue(IsTransitioningProperty, value);
-                _allowIsTransitioningWrite = false;
-
-                if (IsTransitioningChanged != null) {
-                    IsTransitioningChanged(this, EventArgs.Empty);
-                }
+                allowIsTransitioningWrite = false;
+                IsTransitioningChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -121,9 +118,10 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <param name="e">Event arguments.</param>
         private static void OnIsTransitioningPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            TransitioningContentControl source = (TransitioningContentControl)d;
+            var source = (TransitioningContentControl)d;
 
-            if (!source._allowIsTransitioningWrite) {
+            if (!source.allowIsTransitioningWrite)
+            {
                 source.IsTransitioning = (bool)e.OldValue;
                 throw new InvalidOperationException("IsTransitioning property is read-only.");
             }
@@ -133,30 +131,29 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <summary>
         /// The storyboard that is used to transition old and new content.
         /// </summary>
-        private Storyboard _currentTransition;
+        private Storyboard currentTransition;
 
         /// <summary>
-        /// Gets or sets the storyboard that is used to transition old and new content.
+        /// Sets the storyboard that is used to transition old and new content.
         /// </summary>
         private Storyboard CurrentTransition
         {
-            get { return _currentTransition; }
             set
             {
-                // decouple event
-                if (_currentTransition != null) {
-                    _currentTransition.Completed -= OnTransitionCompleted;
+                if (currentTransition != null)
+                {
+                    currentTransition.Completed -= OnTransitionCompleted;
                 }
 
-                _currentTransition = value;
-
-                if (_currentTransition != null) {
-                    _currentTransition.Completed += OnTransitionCompleted;
+                currentTransition = value;
+                if (currentTransition != null)
+                {
+                    currentTransition.Completed += OnTransitionCompleted;
                 }
             }
         }
 
-        #region public string Transition
+        #region Public String Transition
         /// <summary>
         /// Gets or sets the name of the transition to use. These correspond
         /// directly to the VisualStates inside the PresentationStates group.
@@ -184,25 +181,29 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <param name="e">Event arguments.</param>
         private static void OnTransitionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            TransitioningContentControl source = (TransitioningContentControl)d;
-            string oldTransition = e.NewValue as string;
-            string newTransition = e.NewValue as string;
+            var source = (TransitioningContentControl)d;
+            var oldTransition = e.NewValue as string;
+            var newTransition = e.NewValue as string;
 
-            if (source.IsTransitioning) {
+            if (source.IsTransitioning)
+            {
                 source.AbortTransition();
             }
 
             // find new transition
-            Storyboard newStoryboard = source.GetStoryboard(newTransition);
+            var newStoryboard = source.GetStoryboard(newTransition);
 
             // unable to find the transition.
-            if (newStoryboard == null) {
+            if (newStoryboard == null)
+            {
                 // could be during initialization of xaml that presentationgroups was not yet defined
-                if (VisualTreeHelperEx.TryGetVisualStateGroup(source, PresentationGroup) == null) {
+                if (VisualTreeHelperEx.TryGetVisualStateGroup(source, PresentationGroup) == null)
+                {
                     // will delay check
                     source.CurrentTransition = null;
                 }
-                else {
+                else
+                {
                     // revert to old value
                     source.SetValue(TransitionProperty, oldTransition);
 
@@ -210,13 +211,14 @@ namespace FirstFloor.ModernUI.Windows.Controls
                         string.Format(CultureInfo.CurrentCulture, "Transition '{0}' was not defined.", newTransition));
                 }
             }
-            else {
+            else
+            {
                 source.CurrentTransition = newStoryboard;
             }
         }
         #endregion public string Transition
 
-        #region public bool RestartTransitionOnContentChange
+        #region Public Bool RestartTransitionOnContentChange
         /// <summary>
         /// Gets or sets a value indicating whether the current transition
         /// will be aborted when setting new content during a transition.
@@ -266,7 +268,7 @@ namespace FirstFloor.ModernUI.Windows.Controls
 
 #if !SILVERLIGHT
         /// <summary>
-        /// Static constructor
+        /// Initializes static members of the <see cref="TransitioningContentControl"/> class.
         /// </summary>
         static TransitioningContentControl()
         {
@@ -274,23 +276,24 @@ namespace FirstFloor.ModernUI.Windows.Controls
         }
 #endif
 
+#if SILVERLIGHT
         /// <summary>
         /// Initializes a new instance of the <see cref="TransitioningContentControl"/> class.
         /// </summary>
         public TransitioningContentControl()
         {
-#if SILVERLIGHT
             DefaultStyleKey = typeof(TransitioningContentControl);
-#endif
         }
+#endif
 
         /// <summary>
-        /// Builds the visual tree for the TransitioningContentControl control 
+        /// Builds the visual tree for the TransitioningContentControl control
         /// when a new template is applied.
         /// </summary>
         public override void OnApplyTemplate()
         {
-            if (IsTransitioning) {
+            if (IsTransitioning)
+            {
                 AbortTransition();
             }
 
@@ -299,15 +302,18 @@ namespace FirstFloor.ModernUI.Windows.Controls
             PreviousContentPresentationSite = GetTemplateChild(PreviousContentPresentationSitePartName) as ContentPresenter;
             CurrentContentPresentationSite = GetTemplateChild(CurrentContentPresentationSitePartName) as ContentPresenter;
 
-            if (CurrentContentPresentationSite != null) {
+            if (CurrentContentPresentationSite != null)
+            {
                 CurrentContentPresentationSite.Content = Content;
             }
 
             // hookup currenttransition
-            Storyboard transition = GetStoryboard(Transition);
+            var transition = GetStoryboard(Transition);
             CurrentTransition = transition;
-            if (transition == null) {
-                string invalidTransition = Transition;
+            if (transition == null)
+            {
+                var invalidTransition = Transition;
+
                 // revert to default
                 Transition = DefaultTransitionState;
 
@@ -339,13 +345,15 @@ namespace FirstFloor.ModernUI.Windows.Controls
         private void StartTransition(object oldContent, object newContent)
         {
             // both presenters must be available, otherwise a transition is useless.
-            if (CurrentContentPresentationSite != null && PreviousContentPresentationSite != null) {
+            if (CurrentContentPresentationSite != null && PreviousContentPresentationSite != null)
+            {
                 CurrentContentPresentationSite.Content = newContent;
 
                 PreviousContentPresentationSite.Content = oldContent;
 
                 // and start a new transition
-                if (!IsTransitioning || RestartTransitionOnContentChange) {
+                if (!IsTransitioning || RestartTransitionOnContentChange)
+                {
                     IsTransitioning = true;
                     VisualStateManager.GoToState(this, NormalState, false);
                     VisualStateManager.GoToState(this, Transition, true);
@@ -362,10 +370,8 @@ namespace FirstFloor.ModernUI.Windows.Controls
         {
             AbortTransition();
 
-            RoutedEventHandler handler = TransitionCompleted;
-            if (handler != null) {
-                handler(this, new RoutedEventArgs());
-            }
+            var handler = TransitionCompleted;
+            handler?.Invoke(this, new RoutedEventArgs());
         }
 
         /// <summary>
@@ -376,7 +382,8 @@ namespace FirstFloor.ModernUI.Windows.Controls
             // go to normal state and release our hold on the old content.
             VisualStateManager.GoToState(this, NormalState, false);
             IsTransitioning = false;
-            if (PreviousContentPresentationSite != null) {
+            if (PreviousContentPresentationSite != null)
+            {
                 PreviousContentPresentationSite.Content = null;
             }
         }
@@ -388,15 +395,17 @@ namespace FirstFloor.ModernUI.Windows.Controls
         /// <returns>A storyboard or null, if no storyboard was found.</returns>
         private Storyboard GetStoryboard(string newTransition)
         {
-            VisualStateGroup presentationGroup = VisualTreeHelperEx.TryGetVisualStateGroup(this, PresentationGroup);
+            var presentationGroup = VisualTreeHelperEx.TryGetVisualStateGroup(this, PresentationGroup);
             Storyboard newStoryboard = null;
-            if (presentationGroup != null) {
+            if (presentationGroup != null)
+            {
                 newStoryboard = presentationGroup.States
                     .OfType<VisualState>()
                     .Where(state => state.Name == newTransition)
                     .Select(state => state.Storyboard)
                     .FirstOrDefault();
             }
+
             return newStoryboard;
         }
     }
