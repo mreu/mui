@@ -77,7 +77,7 @@
         {
             if (uri == null)
             {
-                throw new ArgumentNullException("uri");
+                throw new ArgumentNullException(nameof(uri));
             }
 
             // first check if uri refers to a command
